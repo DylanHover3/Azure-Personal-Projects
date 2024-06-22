@@ -1,0 +1,84 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_Hub1_name": {
+            "value": null
+        },
+        "virtualMachines_Hub_VM_name": {
+            "value": null
+        },
+        "bastionHosts_hubBastion_name": {
+            "value": null
+        },
+        "virtualMachines_Spoke1_VM_name": {
+            "value": null
+        },
+        "virtualMachines_Spoke2_VM_name": {
+            "value": null
+        },
+        "virtualMachines_Spoke3_VM_name": {
+            "value": null
+        },
+        "networkInterfaces_Hub_VM_NIC_name": {
+            "value": null
+        },
+        "publicIPAddresses_Bastion_pip_name": {
+            "value": null
+        },
+        "virtualNetworks_SpokeNetwork1_name": {
+            "value": null
+        },
+        "virtualNetworks_SpokeNetwork2_name": {
+            "value": null
+        },
+        "virtualNetworks_SpokeNetwork3_name": {
+            "value": null
+        },
+        "networkInterfaces_Spoke1_VM_NIC_name": {
+            "value": null
+        },
+        "networkInterfaces_Spoke2_VM_NIC_name": {
+            "value": null
+        },
+        "networkInterfaces_Spoke3_VM_NIC_name": {
+            "value": null
+        },
+        "storageAccounts_hyperechostorage_name": {
+            "value": null
+        },
+        "privateDnsZones_hyperechocloud_com_name": {
+            "value": null
+        },
+        "privateEndpoints_spoke3_blob_storage_name": {
+            "value": null
+        },
+        "networkSecurityGroups_Hub_Subnet2_nsg_name": {
+            "value": null
+        },
+        "networkSecurityGroups_Spoke1_Subnet1_nsg_name": {
+            "value": null
+        },
+        "networkSecurityGroups_Spoke2_Subnet1_nsg_name": {
+            "value": null
+        },
+        "networkSecurityGroups_Spoke3_Subnet1_nsg_name": {
+            "value": null
+        },
+        "privateDnsZones_storage_hyperechocloud_com_name": {
+            "value": null
+        },
+        "applicationSecurityGroups_Allow_RDM_Spoke1_VM_name": {
+            "value": null
+        },
+        "applicationSecurityGroups_Allow_RDM_Spoke2_VM_name": {
+            "value": null
+        },
+        "applicationSecurityGroups_Allow_RDM_Spoke3_VM_name": {
+            "value": null
+        },
+        "privateDnsZones_privatelink_blob_core_windows_net_name": {
+            "value": null
+        }
+    }
+}

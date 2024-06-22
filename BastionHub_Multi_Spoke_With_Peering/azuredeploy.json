@@ -1,0 +1,501 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.28.1.47646",
+      "templateHash": "14511631783234897141"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "The location of all resources"
+      }
+    },
+    "hubNetworkName": {
+      "type": "string",
+      "defaultValue": "Hub1",
+      "metadata": {
+        "description": "The name of the Hub network"
+      }
+    },
+    "hubNetworkPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "The address prefix of the Hub network"
+      }
+    },
+    "bastionHostName": {
+      "type": "string",
+      "defaultValue": "hubBastion",
+      "metadata": {
+        "description": "The name of the Bastion host"
+      }
+    },
+    "bastionSubnetIpPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/26",
+      "metadata": {
+        "description": "Bastion subnet IP prefix MUST be within vnet IP prefix address space"
+      }
+    },
+    "spokeNetworkCount": {
+      "type": "int",
+      "defaultValue": 3,
+      "metadata": {
+        "description": "Number of spoke networks to be created"
+      }
+    },
+    "userName": {
+      "type": "string",
+      "metadata": {
+        "description": "VMs Admin Username"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "minLength": 12,
+      "metadata": {
+        "description": "Admin Account for VMs password"
+      }
+    },
+    "OSVersion": {
+      "type": "string",
+      "defaultValue": "2019-datacenter-gensecond",
+      "allowedValues": [
+        "2016-datacenter-gensecond",
+        "2016-datacenter-server-core-g2",
+        "2016-datacenter-server-core-smalldisk-g2",
+        "2016-datacenter-smalldisk-g2",
+        "2016-datacenter-with-containers-g2",
+        "2016-datacenter-zhcn-g2",
+        "2019-datacenter-core-g2",
+        "2019-datacenter-core-smalldisk-g2",
+        "2019-datacenter-core-with-containers-g2",
+        "2019-datacenter-core-with-containers-smalldisk-g2",
+        "2019-datacenter-gensecond",
+        "2019-datacenter-smalldisk-g2",
+        "2019-datacenter-with-containers-g2",
+        "2019-datacenter-with-containers-smalldisk-g2",
+        "2019-datacenter-zhcn-g2",
+        "2022-datacenter-azure-edition",
+        "2022-datacenter-azure-edition-core",
+        "2022-datacenter-azure-edition-core-smalldisk",
+        "2022-datacenter-azure-edition-smalldisk",
+        "2022-datacenter-core-g2",
+        "2022-datacenter-core-smalldisk-g2",
+        "2022-datacenter-g2",
+        "2022-datacenter-smalldisk-g2"
+      ],
+      "metadata": {
+        "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_B1ms",
+      "metadata": {
+        "description": "Size of the virtual machine."
+      }
+    },
+    "securityType": {
+      "type": "string",
+      "defaultValue": "Standard",
+      "allowedValues": [
+        "Standard",
+        "TrustedLaunch"
+      ],
+      "metadata": {
+        "description": "Security Type of the Virtual Machine."
+      }
+    }
+  },
+  "variables": {
+    "bastionSubnetName": "AzureBastionSubnet",
+    "hubSubnet2Name": "Subnet-2",
+    "spokeName": [
+      "SpokeNetwork1",
+      "SpokeNetwork2",
+      "SpokeNetwork3",
+      "SpokeNetwork4"
+    ],
+    "spokeAddressPrefixes": [
+      "10.1.0.0/16",
+      "10.2.0.0/16",
+      "10.3.0.0/16",
+      "10.4.0.0/16"
+    ],
+    "spokeSubnetName": "Subent-1",
+    "spokeSubnetAddressPrefixes": [
+      "10.1.1.0/24",
+      "10.2.1.0/24",
+      "10.3.1.0/24",
+      "10.4.1.0/24"
+    ],
+    "securityProfileJson": {
+      "uefiSettings": {
+        "secureBootEnabled": true,
+        "vTpmEnabled": true
+      },
+      "securityType": "[parameters('securityType')]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2023-11-01",
+      "name": "[parameters('hubNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('hubNetworkPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('bastionSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('bastionSubnetIpPrefix')]"
+            }
+          },
+          {
+            "name": "[variables('hubSubnet2Name')]",
+            "properties": {
+              "addressPrefix": "10.0.1.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'Hub-Subnet2-nsg')]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', 'Hub-Subnet2-nsg')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2023-11-01",
+      "name": "Bastion-pip",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+    {
+      "type": "Microsoft.Network/bastionHosts",
+      "apiVersion": "2023-11-01",
+      "name": "[parameters('bastionHostName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "IpConf",
+            "properties": {
+              "subnet": {
+                "id": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetworkName')), '2023-11-01').subnets[0].id]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'Bastion-pip')]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', 'Bastion-pip')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetworkName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2023-11-01",
+      "name": "Hub-Subnet2-nsg",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "nsgRule1",
+            "properties": {
+              "description": "description",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "10.0.0.0/26",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2023-11-01",
+      "name": "Hub-VM-NIC",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconifig-1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/VirtualNetworks/subnets', parameters('hubNetworkName'), variables('hubSubnet2Name'))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetworkName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2024-03-01",
+      "name": "Hub-VM",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "Hub-VM",
+          "adminUsername": "[parameters('userName')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "[parameters('OSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', 'Hub-VM-NIC')]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true
+          }
+        },
+        "securityProfile": "[if(equals(parameters('securityType'), 'TrustedLaunch'), variables('securityProfileJson'), null())]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', 'Hub-VM-NIC')]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "spokeNetwork",
+        "count": "[length(range(0, parameters('spokeNetworkCount')))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2023-11-01",
+      "name": "[variables('spokeName')[range(0, parameters('spokeNetworkCount'))[copyIndex()]]]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('spokeAddressPrefixes')[range(0, parameters('spokeNetworkCount'))[copyIndex()]]]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('spokeSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('spokeSubnetAddressPrefixes')[range(0, parameters('spokeNetworkCount'))[copyIndex()]]]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', format('Spoke{0}-Subnet1-nsg', add(range(0, parameters('spokeNetworkCount'))[range(0, parameters('spokeNetworkCount'))[copyIndex()]], 1)))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', format('Spoke{0}-Subnet1-nsg', add(range(0, parameters('spokeNetworkCount'))[range(0, parameters('spokeNetworkCount'))[copyIndex()]], 1)))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "applicationSecurityGroup",
+        "count": "[length(range(0, parameters('spokeNetworkCount')))]"
+      },
+      "type": "Microsoft.Network/applicationSecurityGroups",
+      "apiVersion": "2023-11-01",
+      "name": "[format('Allow-RDM-Spoke{0}-VM', add(range(0, parameters('spokeNetworkCount'))[copyIndex()], 1))]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "copy": {
+        "name": "SpokenetworkSecurityGroup",
+        "count": "[length(range(0, parameters('spokeNetworkCount')))]"
+      },
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2023-11-01",
+      "name": "[format('Spoke{0}-Subnet1-nsg', add(range(0, parameters('spokeNetworkCount'))[copyIndex()], 1))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "nsgRule1",
+            "properties": {
+              "description": "description",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "10.0.0.0/26",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "copy": {
+        "name": "networkInterface",
+        "count": "[length(range(0, parameters('spokeNetworkCount')))]"
+      },
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2023-11-01",
+      "name": "[format('Spoke{0}-VM-NIC', add(range(0, parameters('spokeNetworkCount'))[copyIndex()], 1))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconifig-1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/VirtualNetworks/subnets', variables('spokeName')[range(0, parameters('spokeNetworkCount'))[range(0, parameters('spokeNetworkCount'))[copyIndex()]]], variables('spokeSubnetName'))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('spokeName')[range(0, parameters('spokeNetworkCount'))[range(0, parameters('spokeNetworkCount'))[copyIndex()]]])]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "spokeWindowsVM",
+        "count": "[length(range(0, parameters('spokeNetworkCount')))]"
+      },
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2024-03-01",
+      "name": "[format('Spoke{0}-VM', add(range(0, parameters('spokeNetworkCount'))[copyIndex()], 1))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[format('Spoke{0}-VM', add(range(0, parameters('spokeNetworkCount'))[copyIndex()], 1))]",
+          "adminUsername": "[parameters('userName')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "[parameters('OSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "StandardSSD_LRS"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', format('Spoke{0}-VM-NIC', add(range(0, parameters('spokeNetworkCount'))[range(0, parameters('spokeNetworkCount'))[copyIndex()]], 1)))]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true
+          }
+        },
+        "securityProfile": "[if(equals(parameters('securityType'), 'TrustedLaunch'), variables('securityProfileJson'), null())]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', format('Spoke{0}-VM-NIC', add(range(0, parameters('spokeNetworkCount'))[range(0, parameters('spokeNetworkCount'))[copyIndex()]], 1)))]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "hubPeerings",
+        "count": "[length(range(0, parameters('spokeNetworkCount')))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2023-11-01",
+      "name": "[format('{0}/{1}', parameters('hubNetworkName'), format('hubNetwork-to-SpokeNetwork{0}', add(range(0, parameters('spokeNetworkCount'))[copyIndex()], 1)))]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": true,
+        "allowGatewayTransit": false,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('spokeName')[range(0, parameters('spokeNetworkCount'))[range(0, parameters('spokeNetworkCount'))[copyIndex()]]])]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetworkName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('spokeName')[range(0, parameters('spokeNetworkCount'))[range(0, parameters('spokeNetworkCount'))[copyIndex()]]])]"
+      ]
+    },
+    {
+      "copy": {
+        "name": "spokePeerings",
+        "count": "[length(range(0, parameters('spokeNetworkCount')))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2023-11-01",
+      "name": "[format('{0}/{1}', variables('spokeName')[range(0, parameters('spokeNetworkCount'))[range(0, parameters('spokeNetworkCount'))[copyIndex()]]], format('Spoke{0}-to-{1}', add(range(0, parameters('spokeNetworkCount'))[copyIndex()], 1), parameters('hubNetworkName')))]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": true,
+        "allowGatewayTransit": false,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetworkName'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', parameters('hubNetworkName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('spokeName')[range(0, parameters('spokeNetworkCount'))[range(0, parameters('spokeNetworkCount'))[copyIndex()]]])]"
+      ]
+    }
+  ]
+}

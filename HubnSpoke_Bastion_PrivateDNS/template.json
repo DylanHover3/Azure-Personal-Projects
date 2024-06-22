@@ -1,0 +1,2000 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualNetworks_Hub1_name": {
+            "defaultValue": "Hub1",
+            "type": "String"
+        },
+        "virtualMachines_Hub_VM_name": {
+            "defaultValue": "Hub-VM",
+            "type": "String"
+        },
+        "bastionHosts_hubBastion_name": {
+            "defaultValue": "hubBastion",
+            "type": "String"
+        },
+        "virtualMachines_Spoke1_VM_name": {
+            "defaultValue": "Spoke1-VM",
+            "type": "String"
+        },
+        "virtualMachines_Spoke2_VM_name": {
+            "defaultValue": "Spoke2-VM",
+            "type": "String"
+        },
+        "virtualMachines_Spoke3_VM_name": {
+            "defaultValue": "Spoke3-VM",
+            "type": "String"
+        },
+        "networkInterfaces_Hub_VM_NIC_name": {
+            "defaultValue": "Hub-VM-NIC",
+            "type": "String"
+        },
+        "publicIPAddresses_Bastion_pip_name": {
+            "defaultValue": "Bastion-pip",
+            "type": "String"
+        },
+        "virtualNetworks_SpokeNetwork1_name": {
+            "defaultValue": "SpokeNetwork1",
+            "type": "String"
+        },
+        "virtualNetworks_SpokeNetwork2_name": {
+            "defaultValue": "SpokeNetwork2",
+            "type": "String"
+        },
+        "virtualNetworks_SpokeNetwork3_name": {
+            "defaultValue": "SpokeNetwork3",
+            "type": "String"
+        },
+        "networkInterfaces_Spoke1_VM_NIC_name": {
+            "defaultValue": "Spoke1-VM-NIC",
+            "type": "String"
+        },
+        "networkInterfaces_Spoke2_VM_NIC_name": {
+            "defaultValue": "Spoke2-VM-NIC",
+            "type": "String"
+        },
+        "networkInterfaces_Spoke3_VM_NIC_name": {
+            "defaultValue": "Spoke3-VM-NIC",
+            "type": "String"
+        },
+        "storageAccounts_hyperechostorage_name": {
+            "defaultValue": "hyperechostorage",
+            "type": "String"
+        },
+        "privateDnsZones_hyperechocloud_com_name": {
+            "defaultValue": "hyperechocloud.com",
+            "type": "String"
+        },
+        "privateEndpoints_spoke3_blob_storage_name": {
+            "defaultValue": "spoke3_blob_storage",
+            "type": "String"
+        },
+        "networkSecurityGroups_Hub_Subnet2_nsg_name": {
+            "defaultValue": "Hub-Subnet2-nsg",
+            "type": "String"
+        },
+        "networkSecurityGroups_Spoke1_Subnet1_nsg_name": {
+            "defaultValue": "Spoke1-Subnet1-nsg",
+            "type": "String"
+        },
+        "networkSecurityGroups_Spoke2_Subnet1_nsg_name": {
+            "defaultValue": "Spoke2-Subnet1-nsg",
+            "type": "String"
+        },
+        "networkSecurityGroups_Spoke3_Subnet1_nsg_name": {
+            "defaultValue": "Spoke3-Subnet1-nsg",
+            "type": "String"
+        },
+        "privateDnsZones_storage_hyperechocloud_com_name": {
+            "defaultValue": "storage.hyperechocloud.com",
+            "type": "String"
+        },
+        "applicationSecurityGroups_Allow_RDM_Spoke1_VM_name": {
+            "defaultValue": "Allow-RDM-Spoke1-VM",
+            "type": "String"
+        },
+        "applicationSecurityGroups_Allow_RDM_Spoke2_VM_name": {
+            "defaultValue": "Allow-RDM-Spoke2-VM",
+            "type": "String"
+        },
+        "applicationSecurityGroups_Allow_RDM_Spoke3_VM_name": {
+            "defaultValue": "Allow-RDM-Spoke3-VM",
+            "type": "String"
+        },
+        "privateDnsZones_privatelink_blob_core_windows_net_name": {
+            "defaultValue": "privatelink.blob.core.windows.net",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Network/applicationSecurityGroups",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('applicationSecurityGroups_Allow_RDM_Spoke1_VM_name')]",
+            "location": "southcentralus",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/applicationSecurityGroups",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('applicationSecurityGroups_Allow_RDM_Spoke2_VM_name')]",
+            "location": "southcentralus",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/applicationSecurityGroups",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('applicationSecurityGroups_Allow_RDM_Spoke3_VM_name')]",
+            "location": "southcentralus",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('networkSecurityGroups_Hub_Subnet2_nsg_name')]",
+            "location": "southcentralus",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "nsgRule1",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_Hub_Subnet2_nsg_name'), 'nsgRule1')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "10.0.0.0/26",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": []
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2020-06-01",
+            "name": "[parameters('privateDnsZones_hyperechocloud_com_name')]",
+            "location": "global",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2020-06-01",
+            "name": "[parameters('privateDnsZones_privatelink_blob_core_windows_net_name')]",
+            "location": "global",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones",
+            "apiVersion": "2020-06-01",
+            "name": "[parameters('privateDnsZones_storage_hyperechocloud_com_name')]",
+            "location": "global",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Network/publicIPAddresses",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('publicIPAddresses_Bastion_pip_name')]",
+            "location": "southcentralus",
+            "sku": {
+                "name": "Standard",
+                "tier": "Regional"
+            },
+            "properties": {
+                "ipAddress": "52.171.214.108",
+                "publicIPAddressVersion": "IPv4",
+                "publicIPAllocationMethod": "Static",
+                "idleTimeoutInMinutes": 4,
+                "ipTags": [],
+                "ddosSettings": {
+                    "protectionMode": "VirtualNetworkInherited"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-03-01",
+            "name": "[parameters('virtualMachines_Hub_VM_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Hub_VM_NIC_name'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-datacenter-gensecond",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_Hub_VM_name'), '_OsDisk_1_7389fa3a345940c5845205fee01e3f74')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS",
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_Hub_VM_name'), '_OsDisk_1_7389fa3a345940c5845205fee01e3f74'))]"
+                        },
+                        "deleteOption": "Detach",
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": [],
+                    "diskControllerType": "SCSI"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachines_Hub_VM_name')]",
+                    "adminUsername": "dhover",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "patchMode": "AutomaticByOS",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Hub_VM_NIC_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-03-01",
+            "name": "[parameters('virtualMachines_Spoke1_VM_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Spoke1_VM_NIC_name'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-datacenter-gensecond",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_Spoke1_VM_name'), '_OsDisk_1_49967ab4c96e4567828f72ffbf375d9b')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS",
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_Spoke1_VM_name'), '_OsDisk_1_49967ab4c96e4567828f72ffbf375d9b'))]"
+                        },
+                        "deleteOption": "Detach",
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": [],
+                    "diskControllerType": "SCSI"
+                },
+                "osProfile": {
+                    "computerName": "Spoke0-VM",
+                    "adminUsername": "dhover",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "patchMode": "AutomaticByOS",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Spoke1_VM_NIC_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-03-01",
+            "name": "[parameters('virtualMachines_Spoke2_VM_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Spoke2_VM_NIC_name'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-datacenter-gensecond",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_Spoke2_VM_name'), '_OsDisk_1_46fd2339dbbf425eb3d6d8a466130149')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS",
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_Spoke2_VM_name'), '_OsDisk_1_46fd2339dbbf425eb3d6d8a466130149'))]"
+                        },
+                        "deleteOption": "Detach",
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": [],
+                    "diskControllerType": "SCSI"
+                },
+                "osProfile": {
+                    "computerName": "Spoke1-VM",
+                    "adminUsername": "dhover",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "patchMode": "AutomaticByOS",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Spoke2_VM_NIC_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "apiVersion": "2024-03-01",
+            "name": "[parameters('virtualMachines_Spoke3_VM_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Spoke3_VM_NIC_name'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "Standard_B1ms"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-datacenter-gensecond",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(parameters('virtualMachines_Spoke3_VM_name'), '_OsDisk_1_42d71a7c3835469680200d2f2afe5000')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "managedDisk": {
+                            "storageAccountType": "StandardSSD_LRS",
+                            "id": "[resourceId('Microsoft.Compute/disks', concat(parameters('virtualMachines_Spoke3_VM_name'), '_OsDisk_1_42d71a7c3835469680200d2f2afe5000'))]"
+                        },
+                        "deleteOption": "Detach",
+                        "diskSizeGB": 127
+                    },
+                    "dataDisks": [],
+                    "diskControllerType": "SCSI"
+                },
+                "osProfile": {
+                    "computerName": "Spoke2-VM",
+                    "adminUsername": "dhover",
+                    "windowsConfiguration": {
+                        "provisionVMAgent": true,
+                        "enableAutomaticUpdates": true,
+                        "patchSettings": {
+                            "patchMode": "AutomaticByOS",
+                            "assessmentMode": "ImageDefault"
+                        }
+                    },
+                    "secrets": [],
+                    "allowExtensionOperations": true,
+                    "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Spoke3_VM_NIC_name'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('networkInterfaces_Hub_VM_NIC_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_Hub1_name'), 'Subnet-2')]"
+            ],
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconifig-1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Hub_VM_NIC_name')), '/ipConfigurations/ipconifig-1')]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAddress": "10.0.1.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_Hub1_name'), 'Subnet-2')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4"
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('networkSecurityGroups_Spoke1_Subnet1_nsg_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke1_VM_name'))]"
+            ],
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "nsgRule1",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_Spoke1_Subnet1_nsg_name'), 'nsgRule1')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "10.0.0.0/26",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": [],
+                            "destinationApplicationSecurityGroups": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke1_VM_name'))]"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('networkSecurityGroups_Spoke2_Subnet1_nsg_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke2_VM_name'))]"
+            ],
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "nsgRule1",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_Spoke2_Subnet1_nsg_name'), 'nsgRule1')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "10.0.0.0/26",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": [],
+                            "destinationApplicationSecurityGroups": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke2_VM_name'))]"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('networkSecurityGroups_Spoke3_Subnet1_nsg_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke3_VM_name'))]"
+            ],
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "nsgRule1",
+                        "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', parameters('networkSecurityGroups_Spoke3_Subnet1_nsg_name'), 'nsgRule1')]",
+                        "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                        "properties": {
+                            "description": "description",
+                            "protocol": "TCP",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "3389",
+                            "sourceAddressPrefix": "10.0.0.0/26",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound",
+                            "sourcePortRanges": [],
+                            "destinationPortRanges": [],
+                            "sourceAddressPrefixes": [],
+                            "destinationAddressPrefixes": [],
+                            "destinationApplicationSecurityGroups": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke3_VM_name'))]"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_Hub_Subnet2_nsg_name'), '/nsgRule1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Hub_Subnet2_nsg_name'))]"
+            ],
+            "properties": {
+                "description": "description",
+                "protocol": "Tcp",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "10.0.0.0/26",
+                "destinationAddressPrefix": "*",
+                "access": "Allow",
+                "priority": 1000,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": []
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_hyperechocloud_com_name'), '/hub-vm')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_hyperechocloud_com_name'))]"
+            ],
+            "properties": {
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.0.1.4"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_blob_core_windows_net_name'), '/hyperechostorage')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_blob_core_windows_net_name'))]"
+            ],
+            "properties": {
+                "ttl": 3600,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.3.1.5"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_hyperechocloud_com_name'), '/spoke0-vm')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_hyperechocloud_com_name'))]"
+            ],
+            "properties": {
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.1.1.4"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_hyperechocloud_com_name'), '/spoke1-vm')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_hyperechocloud_com_name'))]"
+            ],
+            "properties": {
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.2.1.4"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_storage_hyperechocloud_com_name'), '/spoke2-vm')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_storage_hyperechocloud_com_name'))]"
+            ],
+            "properties": {
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.3.1.4"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_hyperechocloud_com_name'), '/vm000000')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_hyperechocloud_com_name'))]"
+            ],
+            "properties": {
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.0.0.4"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/A",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_hyperechocloud_com_name'), '/vm000001')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_hyperechocloud_com_name'))]"
+            ],
+            "properties": {
+                "ttl": 10,
+                "aRecords": [
+                    {
+                        "ipv4Address": "10.0.0.5"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/SOA",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_hyperechocloud_com_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_hyperechocloud_com_name'))]"
+            ],
+            "properties": {
+                "ttl": 3600,
+                "soaRecord": {
+                    "email": "azureprivatedns-host.microsoft.com",
+                    "expireTime": 2419200,
+                    "host": "azureprivatedns.net",
+                    "minimumTtl": 10,
+                    "refreshTime": 3600,
+                    "retryTime": 300,
+                    "serialNumber": 1
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/SOA",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_blob_core_windows_net_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_blob_core_windows_net_name'))]"
+            ],
+            "properties": {
+                "ttl": 3600,
+                "soaRecord": {
+                    "email": "azureprivatedns-host.microsoft.com",
+                    "expireTime": 2419200,
+                    "host": "azureprivatedns.net",
+                    "minimumTtl": 10,
+                    "refreshTime": 3600,
+                    "retryTime": 300,
+                    "serialNumber": 1
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/SOA",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_storage_hyperechocloud_com_name'), '/@')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_storage_hyperechocloud_com_name'))]"
+            ],
+            "properties": {
+                "ttl": 3600,
+                "soaRecord": {
+                    "email": "azureprivatedns-host.microsoft.com",
+                    "expireTime": 2419200,
+                    "host": "azureprivatedns.net",
+                    "minimumTtl": 10,
+                    "refreshTime": 3600,
+                    "retryTime": 300,
+                    "serialNumber": 1
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_Hub1_name'), '/AzureBastionSubnet')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.0.0/26",
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-04-01",
+            "name": "[parameters('storageAccounts_hyperechostorage_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork3_name'), 'Subent-1')]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "dnsEndpointType": "Standard",
+                "defaultToOAuthAuthentication": false,
+                "publicNetworkAccess": "Disabled",
+                "allowCrossTenantReplication": false,
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "allowSharedKeyAccess": true,
+                "largeFileSharesState": "Enabled",
+                "networkAcls": {
+                    "resourceAccessRules": [],
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork3_name'), 'Subent-1')]",
+                            "action": "Allow",
+                            "state": "Succeeded"
+                        }
+                    ],
+                    "ipRules": [],
+                    "defaultAction": "Deny"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "requireInfrastructureEncryption": false,
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Cool"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2023-04-01",
+            "name": "[concat(parameters('storageAccounts_hyperechostorage_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_hyperechostorage_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "containerDeleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                },
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "allowPermanentDelete": false,
+                    "enabled": true,
+                    "days": 7
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2023-04-01",
+            "name": "[concat(parameters('storageAccounts_hyperechostorage_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_hyperechostorage_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "protocolSettings": {
+                    "smb": {}
+                },
+                "cors": {
+                    "corsRules": []
+                },
+                "shareDeleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/privateEndpointConnections",
+            "apiVersion": "2023-04-01",
+            "name": "[concat(parameters('storageAccounts_hyperechostorage_name'), '/', parameters('storageAccounts_hyperechostorage_name'), '.5c4f3d46-d440-472c-9bee-1a076d29fb76')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_hyperechostorage_name'))]"
+            ],
+            "properties": {
+                "privateEndpoint": {},
+                "privateLinkServiceConnectionState": {
+                    "status": "Approved",
+                    "description": "Auto-Approved",
+                    "actionRequired": "None"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/queueServices",
+            "apiVersion": "2023-04-01",
+            "name": "[concat(parameters('storageAccounts_hyperechostorage_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_hyperechostorage_name'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/tableServices",
+            "apiVersion": "2023-04-01",
+            "name": "[concat(parameters('storageAccounts_hyperechostorage_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_hyperechostorage_name'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/bastionHosts",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('bastionHosts_hubBastion_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_Bastion_pip_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_Hub1_name'), 'AzureBastionSubnet')]"
+            ],
+            "sku": {
+                "name": "Basic"
+            },
+            "properties": {
+                "dnsName": "bst-b5acf767-a9ea-4589-aa9f-c5126d0199ba.bastion.azure.com",
+                "scaleUnits": 2,
+                "ipConfigurations": [
+                    {
+                        "name": "IpConf",
+                        "id": "[concat(resourceId('Microsoft.Network/bastionHosts', parameters('bastionHosts_hubBastion_name')), '/bastionHostIpConfigurations/IpConf')]",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "publicIPAddress": {
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIPAddresses_Bastion_pip_name'))]"
+                            },
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_Hub1_name'), 'AzureBastionSubnet')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('networkInterfaces_Spoke1_VM_NIC_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork1_name'), 'Subent-1')]",
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke1_VM_name'))]"
+            ],
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconifig-1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Spoke1_VM_NIC_name')), '/ipConfigurations/ipconifig-1')]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAddress": "10.1.1.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork1_name'), 'Subent-1')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "applicationSecurityGroups": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke1_VM_name'))]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('networkInterfaces_Spoke2_VM_NIC_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork2_name'), 'Subent-1')]",
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke2_VM_name'))]"
+            ],
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconifig-1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Spoke2_VM_NIC_name')), '/ipConfigurations/ipconifig-1')]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAddress": "10.2.1.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork2_name'), 'Subent-1')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "applicationSecurityGroups": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke2_VM_name'))]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('networkInterfaces_Spoke3_VM_NIC_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork3_name'), 'Subent-1')]",
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke3_VM_name'))]"
+            ],
+            "kind": "Regular",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconifig-1",
+                        "id": "[concat(resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaces_Spoke3_VM_NIC_name')), '/ipConfigurations/ipconifig-1')]",
+                        "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                        "properties": {
+                            "privateIPAddress": "10.3.1.4",
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork3_name'), 'Subent-1')]"
+                            },
+                            "primary": true,
+                            "privateIPAddressVersion": "IPv4",
+                            "applicationSecurityGroups": [
+                                {
+                                    "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke3_VM_name'))]"
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "dnsSettings": {
+                    "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_Spoke1_Subnet1_nsg_name'), '/nsgRule1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke1_Subnet1_nsg_name'))]",
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke1_VM_name'))]"
+            ],
+            "properties": {
+                "description": "description",
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "10.0.0.0/26",
+                "access": "Allow",
+                "priority": 1000,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": [],
+                "destinationApplicationSecurityGroups": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke1_VM_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_Spoke2_Subnet1_nsg_name'), '/nsgRule1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke2_Subnet1_nsg_name'))]",
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke2_VM_name'))]"
+            ],
+            "properties": {
+                "description": "description",
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "10.0.0.0/26",
+                "access": "Allow",
+                "priority": 1000,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": [],
+                "destinationApplicationSecurityGroups": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke2_VM_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('networkSecurityGroups_Spoke3_Subnet1_nsg_name'), '/nsgRule1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke3_Subnet1_nsg_name'))]",
+                "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke3_VM_name'))]"
+            ],
+            "properties": {
+                "description": "description",
+                "protocol": "TCP",
+                "sourcePortRange": "*",
+                "destinationPortRange": "3389",
+                "sourceAddressPrefix": "10.0.0.0/26",
+                "access": "Allow",
+                "priority": 1000,
+                "direction": "Inbound",
+                "sourcePortRanges": [],
+                "destinationPortRanges": [],
+                "sourceAddressPrefixes": [],
+                "destinationAddressPrefixes": [],
+                "destinationApplicationSecurityGroups": [
+                    {
+                        "id": "[resourceId('Microsoft.Network/applicationSecurityGroups', parameters('applicationSecurityGroups_Allow_RDM_Spoke3_VM_name'))]"
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_blob_core_windows_net_name'), '/ezmnuqq5c5m5c')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_blob_core_windows_net_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]"
+            ],
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_privatelink_blob_core_windows_net_name'), '/hub-link')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_privatelink_blob_core_windows_net_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+            ],
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_storage_hyperechocloud_com_name'), '/hub-link')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_storage_hyperechocloud_com_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+            ],
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_hyperechocloud_com_name'), '/spoke1-link')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_hyperechocloud_com_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork1_name'))]"
+            ],
+            "properties": {
+                "registrationEnabled": true,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork1_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_hyperechocloud_com_name'), '/spoke2-link')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_hyperechocloud_com_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork2_name'))]"
+            ],
+            "properties": {
+                "registrationEnabled": true,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork2_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_hyperechocloud_com_name'), '/spoke3-link')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_hyperechocloud_com_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]"
+            ],
+            "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_storage_hyperechocloud_com_name'), '/spoke3-link')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_storage_hyperechocloud_com_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]"
+            ],
+            "properties": {
+                "registrationEnabled": true,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+            "apiVersion": "2020-06-01",
+            "name": "[concat(parameters('privateDnsZones_hyperechocloud_com_name'), '/vnet1-link')]",
+            "location": "global",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', parameters('privateDnsZones_hyperechocloud_com_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+            ],
+            "properties": {
+                "registrationEnabled": true,
+                "virtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/privateEndpoints",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('privateEndpoints_spoke3_blob_storage_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_hyperechostorage_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork3_name'), 'Subent-1')]"
+            ],
+            "properties": {
+                "privateLinkServiceConnections": [
+                    {
+                        "name": "[concat(parameters('privateEndpoints_spoke3_blob_storage_name'), '_8c2750ac-3eff-4c30-ba89-969c8101b051')]",
+                        "id": "[concat(resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpoints_spoke3_blob_storage_name')), concat('/privateLinkServiceConnections/', parameters('privateEndpoints_spoke3_blob_storage_name'), '_8c2750ac-3eff-4c30-ba89-969c8101b051'))]",
+                        "properties": {
+                            "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_hyperechostorage_name'))]",
+                            "groupIds": [
+                                "blob"
+                            ],
+                            "privateLinkServiceConnectionState": {
+                                "status": "Approved",
+                                "description": "Auto-Approved",
+                                "actionsRequired": "None"
+                            }
+                        }
+                    }
+                ],
+                "manualPrivateLinkServiceConnections": [],
+                "subnet": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork3_name'), 'Subent-1')]"
+                },
+                "ipConfigurations": [],
+                "customDnsConfigs": [
+                    {
+                        "fqdn": "hyperechostorage.blob.core.windows.net",
+                        "ipAddresses": [
+                            "10.3.1.5"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('virtualNetworks_SpokeNetwork1_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke1_Subnet1_nsg_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.1.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "Subent-1",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork1_name'), 'Subent-1')]",
+                        "properties": {
+                            "addressPrefix": "10.1.1.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke1_Subnet1_nsg_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [
+                    {
+                        "name": "Spoke1-to-Hub1",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_SpokeNetwork1_name'), 'Spoke1-to-Hub1')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": false,
+                            "useRemoteGateways": false,
+                            "doNotVerifyRemoteGateways": false,
+                            "peerCompleteVnets": true,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.0.0.0/16"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.0.0.0/16"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    }
+                ],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('virtualNetworks_SpokeNetwork2_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke2_Subnet1_nsg_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.2.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "Subent-1",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork2_name'), 'Subent-1')]",
+                        "properties": {
+                            "addressPrefix": "10.2.1.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke2_Subnet1_nsg_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [
+                    {
+                        "name": "Spoke2-to-Hub1",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_SpokeNetwork2_name'), 'Spoke2-to-Hub1')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": false,
+                            "useRemoteGateways": false,
+                            "doNotVerifyRemoteGateways": false,
+                            "peerCompleteVnets": true,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.0.0.0/16"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.0.0.0/16"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    }
+                ],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('virtualNetworks_SpokeNetwork3_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke3_Subnet1_nsg_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.3.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "Subent-1",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_SpokeNetwork3_name'), 'Subent-1')]",
+                        "properties": {
+                            "addressPrefix": "10.3.1.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke3_Subnet1_nsg_name'))]"
+                            },
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.Storage",
+                                    "locations": [
+                                        "southcentralus",
+                                        "northcentralus",
+                                        "brazilsouth"
+                                    ]
+                                }
+                            ],
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [
+                    {
+                        "name": "Spoke3-to-Hub1",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_SpokeNetwork3_name'), 'Spoke3-to-Hub1')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": false,
+                            "useRemoteGateways": false,
+                            "doNotVerifyRemoteGateways": false,
+                            "peerCompleteVnets": true,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.0.0.0/16"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.0.0.0/16"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    }
+                ],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_SpokeNetwork1_name'), '/Subent-1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork1_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke1_Subnet1_nsg_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.1.1.0/24",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke1_Subnet1_nsg_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_SpokeNetwork2_name'), '/Subent-1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork2_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke2_Subnet1_nsg_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.2.1.0/24",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke2_Subnet1_nsg_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_SpokeNetwork3_name'), '/Subent-1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke3_Subnet1_nsg_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.3.1.0/24",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Spoke3_Subnet1_nsg_name'))]"
+                },
+                "serviceEndpoints": [
+                    {
+                        "service": "Microsoft.Storage",
+                        "locations": [
+                            "southcentralus",
+                            "northcentralus",
+                            "brazilsouth"
+                        ]
+                    }
+                ],
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_Hub1_name'), '/Subnet-2')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]",
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Hub_Subnet2_nsg_name'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.1.0/24",
+                "networkSecurityGroup": {
+                    "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Hub_Subnet2_nsg_name'))]"
+                },
+                "delegations": [],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_Hub1_name'), '/hubNetwork-to-SpokeNetwork1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork1_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork1_name'))]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "doNotVerifyRemoteGateways": false,
+                "peerCompleteVnets": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "10.1.0.0/16"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "10.1.0.0/16"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_Hub1_name'), '/hubNetwork-to-SpokeNetwork2')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork2_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork2_name'))]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "doNotVerifyRemoteGateways": false,
+                "peerCompleteVnets": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "10.2.0.0/16"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "10.2.0.0/16"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_Hub1_name'), '/hubNetwork-to-SpokeNetwork3')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "doNotVerifyRemoteGateways": false,
+                "peerCompleteVnets": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "10.3.0.0/16"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "10.3.0.0/16"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_SpokeNetwork1_name'), '/Spoke1-to-Hub1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork1_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "doNotVerifyRemoteGateways": false,
+                "peerCompleteVnets": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_SpokeNetwork2_name'), '/Spoke2-to-Hub1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork2_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "doNotVerifyRemoteGateways": false,
+                "peerCompleteVnets": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+            "apiVersion": "2023-11-01",
+            "name": "[concat(parameters('virtualNetworks_SpokeNetwork3_name'), '/Spoke3-to-Hub1')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+            ],
+            "properties": {
+                "peeringState": "Connected",
+                "peeringSyncLevel": "FullyInSync",
+                "remoteVirtualNetwork": {
+                    "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_Hub1_name'))]"
+                },
+                "allowVirtualNetworkAccess": true,
+                "allowForwardedTraffic": true,
+                "allowGatewayTransit": false,
+                "useRemoteGateways": false,
+                "doNotVerifyRemoteGateways": false,
+                "peerCompleteVnets": true,
+                "remoteAddressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "remoteVirtualNetworkAddressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "apiVersion": "2023-04-01",
+            "name": "[concat(parameters('storageAccounts_hyperechostorage_name'), '/default/test')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_hyperechostorage_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_hyperechostorage_name'))]"
+            ],
+            "properties": {
+                "immutableStorageWithVersioning": {
+                    "enabled": false
+                },
+                "defaultEncryptionScope": "$account-encryption-key",
+                "denyEncryptionScopeOverride": false,
+                "publicAccess": "None"
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2023-11-01",
+            "name": "[parameters('virtualNetworks_Hub1_name')]",
+            "location": "southcentralus",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Hub_Subnet2_nsg_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork2_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork1_name'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "Subnet-2",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_Hub1_name'), 'Subnet-2')]",
+                        "properties": {
+                            "addressPrefix": "10.0.1.0/24",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroups_Hub_Subnet2_nsg_name'))]"
+                            },
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "name": "AzureBastionSubnet",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_Hub1_name'), 'AzureBastionSubnet')]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/26",
+                            "delegations": [],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [
+                    {
+                        "name": "hubNetwork-to-SpokeNetwork2",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_Hub1_name'), 'hubNetwork-to-SpokeNetwork2')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork2_name'))]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": false,
+                            "useRemoteGateways": false,
+                            "doNotVerifyRemoteGateways": false,
+                            "peerCompleteVnets": true,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.2.0.0/16"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.2.0.0/16"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    },
+                    {
+                        "name": "hubNetwork-to-SpokeNetwork3",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_Hub1_name'), 'hubNetwork-to-SpokeNetwork3')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork3_name'))]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": false,
+                            "useRemoteGateways": false,
+                            "doNotVerifyRemoteGateways": false,
+                            "peerCompleteVnets": true,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.3.0.0/16"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.3.0.0/16"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    },
+                    {
+                        "name": "hubNetwork-to-SpokeNetwork1",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/virtualNetworkPeerings', parameters('virtualNetworks_Hub1_name'), 'hubNetwork-to-SpokeNetwork1')]",
+                        "properties": {
+                            "peeringState": "Connected",
+                            "peeringSyncLevel": "FullyInSync",
+                            "remoteVirtualNetwork": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_SpokeNetwork1_name'))]"
+                            },
+                            "allowVirtualNetworkAccess": true,
+                            "allowForwardedTraffic": true,
+                            "allowGatewayTransit": false,
+                            "useRemoteGateways": false,
+                            "doNotVerifyRemoteGateways": false,
+                            "peerCompleteVnets": true,
+                            "remoteAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.1.0.0/16"
+                                ]
+                            },
+                            "remoteVirtualNetworkAddressSpace": {
+                                "addressPrefixes": [
+                                    "10.1.0.0/16"
+                                ]
+                            }
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+                    }
+                ],
+                "enableDdosProtection": false
+            }
+        }
+    ]
+}
