@@ -95,10 +95,7 @@
     "securityType": {
       "type": "string",
       "defaultValue": "Standard",
-      "allowedValues": [
-        "Standard",
-        "TrustedLaunch"
-      ],
+      "allowedValues": ["Standard", "TrustedLaunch"],
       "metadata": {
         "description": "Security Type of the Virtual Machine."
       }
@@ -135,22 +132,10 @@
     "jumpBoxSubnetName": "JumpboxSubnet",
     "jumpboxSubnetPrefix": "10.0.1.0/24",
     "JumpBoxSubnetNSGName": "[format('{0}-nsg', variables('jumpBoxSubnetName'))]",
-    "spokeNetworkName": [
-      "Spoke1-Vnet",
-      "Spoke2-Vnet"
-    ],
-    "spokeVnetAddressPrefix": [
-      "10.1.0.0/16",
-      "10.2.0.0/16"
-    ],
-    "spokeSubnetName": [
-      "Spoke1-ServersSubnet",
-      "Spoke2-ServersSubnet"
-    ],
-    "spokeSubnetAddressPrefixes": [
-      "10.1.1.0/24",
-      "10.2.1.0/24"
-    ],
+    "spokeNetworkName": ["Spoke1-Vnet", "Spoke2-Vnet"],
+    "spokeVnetAddressPrefix": ["10.1.0.0/16", "10.2.0.0/16"],
+    "spokeSubnetName": ["Spoke1-ServersSubnet", "Spoke2-ServersSubnet"],
+    "spokeSubnetAddressPrefixes": ["10.1.1.0/24", "10.2.1.0/24"],
     "jumpBoxPublicIPAddressName": "JumpHostPublicIP",
     "jumpBoxNicName": "JumpHostNic",
     "jumpBoxSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('hubVirtualNetworkName'), variables('jumpBoxSubnetName'))]",
@@ -179,7 +164,7 @@
   "resources": [
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[parameters('hubVirtualNetworkName')]",
       "location": "[parameters('location')]",
       "tags": {
@@ -187,9 +172,7 @@
       },
       "properties": {
         "addressSpace": {
-          "addressPrefixes": [
-            "[variables('hubVnetAddressPrefix')]"
-          ]
+          "addressPrefixes": ["[variables('hubVnetAddressPrefix')]"]
         },
         "subnets": [
           {
@@ -229,7 +212,7 @@
         "count": "[length(range(0, parameters('spokeNetworkCount')))]"
       },
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[variables('spokeNetworkName')[range(0, parameters('spokeNetworkCount'))[copyIndex()]]]",
       "location": "[parameters('location')]",
       "tags": {
@@ -274,7 +257,7 @@
     },
     {
       "type": "Microsoft.Network/routeTables",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[variables('hubRouteTableName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -309,7 +292,7 @@
     },
     {
       "type": "Microsoft.Network/routeTables",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[variables('spokeRouteTableName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -352,7 +335,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[variables('jumpBoxPublicIPAddressName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -361,14 +344,14 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[variables('JumpBoxSubnetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[variables('jumpBoxNicName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -394,7 +377,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2024-03-01",
+      "apiVersion": "2023-03-01",
       "name": "JumpBox",
       "location": "[parameters('location')]",
       "properties": {
@@ -446,7 +429,7 @@
         "count": "[length(range(0, parameters('spokeNetworkCount')))]"
       },
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('Spoke{0}-NSG', add(range(0, parameters('spokeNetworkCount'))[copyIndex()], 1))]",
       "location": "[parameters('location')]",
       "properties": {}
@@ -457,7 +440,7 @@
         "count": "[length(range(0, parameters('spokeNetworkCount')))]"
       },
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('{0}-{1}', variables('spokeServerNicName'), add(range(0, parameters('spokeNetworkCount'))[copyIndex()], 1))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -473,9 +456,7 @@
           }
         ]
       },
-      "dependsOn": [
-        "spokeVirtualNetwork"
-      ]
+      "dependsOn": ["spokeVirtualNetwork"]
     },
     {
       "copy": {
@@ -483,7 +464,7 @@
         "count": "[length(range(0, parameters('spokeNetworkCount')))]"
       },
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2024-03-01",
+      "apiVersion": "2023-03-01",
       "name": "[format('Spoke{0}-Server', add(range(0, parameters('spokeNetworkCount'))[copyIndex()], 1))]",
       "location": "[parameters('location')]",
       "properties": {
@@ -531,7 +512,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "Bastion-pip",
       "location": "[parameters('location')]",
       "sku": {
@@ -543,7 +524,7 @@
     },
     {
       "type": "Microsoft.Network/bastionHosts",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "[variables('bastionHostName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -572,7 +553,7 @@
         "count": "[length(range(0, parameters('numberOfFirewallPublicIPAddresses')))]"
       },
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[format('{0}{1}', variables('azureFiewallPIPNamePrefix'), add(range(0, parameters('numberOfFirewallPublicIPAddresses'))[copyIndex()], 1))]",
       "location": "[parameters('location')]",
       "sku": {
@@ -585,7 +566,7 @@
     },
     {
       "type": "Microsoft.Network/azureFirewalls",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "[variables('firewallName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -598,25 +579,20 @@
     },
     {
       "type": "Microsoft.Network/ipGroups",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[parameters('ipgroups_name1')]",
       "location": "[parameters('location')]",
       "properties": {
-        "ipAddresses": [
-          "10.0.1.0/24"
-        ]
+        "ipAddresses": ["10.0.1.0/24"]
       }
     },
     {
       "type": "Microsoft.Network/ipGroups",
-      "apiVersion": "2023-09-01",
+      "apiVersion": "2023-04-01",
       "name": "[parameters('ipgroups_name2')]",
       "location": "[parameters('location')]",
       "properties": {
-        "ipAddresses": [
-          "10.1.1.0/24",
-          "10.2.1.0/24"
-        ]
+        "ipAddresses": ["10.1.1.0/24", "10.2.1.0/24"]
       }
     },
     {
@@ -664,6 +640,7 @@
       ]
     }
   ],
+
   "outputs": {
     "location": {
       "type": "string",

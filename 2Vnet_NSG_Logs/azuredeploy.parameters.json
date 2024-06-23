@@ -1,0 +1,66 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "hubNetworkName": {
+      "value": "Hub1"
+    },
+    "hubNetworkPrefix": {
+      "value": null
+    },
+    "bastionHostName": {
+      "value": null
+    },
+    "bastionSubnetName": {
+      "value": null
+    },
+    "bastionSubnetIpPrefix": {
+      "value": null
+    },
+    "bastionPIP": {
+      "value": null
+    },
+    "hubSubnet1Name": {
+      "value": null
+    },
+    "hubSubnet1AddressPrefix": {
+      "value": null
+    },
+    "spoke1NetworkName": {
+      "value": null
+    },
+    "spokeAddressPrefix": {
+      "value": null
+    },
+    "spoke1Subnet1Name": {
+      "value": null
+    },
+    "spoke1Subnet1Prefix": {
+      "value": null
+    },
+    "hubSubNSGName": {
+      "value": null
+    },
+    "spokeSubNSGName": {
+      "value": null
+    },
+    "hubUbuntuName": {
+      "value": null
+    },
+    "spokeUbuntuName": {
+      "value": null
+    },
+    "OSVersion": {},
+    "vmSize": {
+      "value": null
+    },
+    "securityType": {},
+    "authenticationType": {},
+    "userName": {
+      "value": null
+    },
+    "adminPassword": {
+      "value": null
+    }
+  }
+}

@@ -131,11 +131,7 @@
     "OSVersion": {
       "type": "string",
       "defaultValue": "20_04-lts-gen2",
-      "allowedValues": [
-        "16_04-lts-gen2",
-        "20_04-lts-gen2",
-        "22_04-lts-gen2"
-      ],
+      "allowedValues": ["16_04-lts-gen2", "20_04-lts-gen2", "22_04-lts-gen2"],
       "metadata": {
         "description": "The Ubuntu Sku for the VM."
       }
@@ -150,10 +146,7 @@
     "securityType": {
       "type": "string",
       "defaultValue": "Standard",
-      "allowedValues": [
-        "Standard",
-        "TrustedLaunch"
-      ],
+      "allowedValues": ["Standard", "TrustedLaunch"],
       "metadata": {
         "description": "Security Type of the Virtual Machine."
       }
@@ -161,10 +154,7 @@
     "authenticationType": {
       "type": "string",
       "defaultValue": "password",
-      "allowedValues": [
-        "sshPublicKey",
-        "password"
-      ],
+      "allowedValues": ["sshPublicKey", "password"],
       "metadata": {
         "description": "Type of authentication to use on the Virtual Machine. SSH key is recommended."
       }
@@ -177,12 +167,12 @@
     },
     "adminPassword": {
       "type": "securestring",
-      "minLength": 12,
       "metadata": {
         "description": "Admin Account for VMs password"
       }
     }
   },
+
   "variables": {
     "linuxConfiguration": {
       "disablePasswordAuthentication": true,
@@ -203,17 +193,16 @@
       "securityType": "[parameters('securityType')]"
     }
   },
+
   "resources": [
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "[parameters('hubNetworkName')]",
       "location": "[parameters('location')]",
       "properties": {
         "addressSpace": {
-          "addressPrefixes": [
-            "[parameters('hubNetworkPrefix')]"
-          ]
+          "addressPrefixes": ["[parameters('hubNetworkPrefix')]"]
         },
         "subnets": [
           {
@@ -239,14 +228,12 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "[parameters('spoke1NetworkName')]",
       "location": "[parameters('location')]",
       "properties": {
         "addressSpace": {
-          "addressPrefixes": [
-            "[parameters('spokeAddressPrefix')]"
-          ]
+          "addressPrefixes": ["[parameters('spokeAddressPrefix')]"]
         },
         "subnets": [
           {
@@ -266,7 +253,7 @@
     },
     {
       "type": "Microsoft.Network/bastionHosts",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "[parameters('bastionHostName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -291,7 +278,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "[parameters('bastionPIP')]",
       "location": "[parameters('location')]",
       "sku": {
@@ -303,7 +290,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "[parameters('hubSubNSGName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -327,7 +314,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "[parameters('spokeSubNSGName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -351,7 +338,7 @@
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "Hub-vm-nic",
       "location": "[parameters('location')]",
       "properties": {
@@ -373,7 +360,7 @@
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2023-11-01",
+      "apiVersion": "2023-04-01",
       "name": "Spoke-vm-nic",
       "location": "[parameters('location')]",
       "properties": {

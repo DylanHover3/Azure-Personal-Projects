@@ -1,0 +1,39 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "value": ""
+    },
+    "hubVirtualNetworkName": {
+      "value": "Hub-vnet"
+    },
+    "spokeNetworkCount": {
+      "value": 0
+    },
+    "ipgroups_name1": {
+      "value": ""
+    },
+    "ipgroups_name2": {
+      "value": ""
+    },
+    "adminUsername": {
+      "value": ""
+    },
+    "adminPasswordOrKey": {
+      "value": ""
+    },
+    "vmSize": {
+      "value": ""
+    },
+    "OSVersion": {
+      "value": "2019-datacenter-gensecond"
+    },
+    "securityType": {
+      "value": "Standard"
+    },
+    "numberOfFirewallPublicIPAddresses": {
+      "value": 1
+    }
+  }
+}
