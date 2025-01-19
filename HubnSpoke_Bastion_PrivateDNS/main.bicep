@@ -82,7 +82,7 @@ var bastionSubnetName = 'AzureBastionSubnet'
 var hubSubnet2Name = 'Subnet-2'
 var spokeName = ['SpokeNetwork1', 'SpokeNetwork2', 'SpokeNetwork3', 'SpokeNetwork4']
 var spokeAddressPrefixes = ['10.1.0.0/16', '10.2.0.0/16', '10.3.0.0/16', '10.4.0.0/16']
-var spokeSubnetName = 'Subent-1'
+var spokeSubnetName = 'Subnet-1'
 var spokeSubnetAddressPrefixes = ['10.1.1.0/24', '10.2.1.0/24', '10.3.1.0/24', '10.4.1.0/24']
 var securityProfileJson = {
   uefiSettings: {
@@ -403,7 +403,7 @@ resource privateDnsZones_hub_link 'Microsoft.Network/privateDnsZones/virtualNetw
   }
 }
 
-resource storageAccounts_resource 'Microsoft.Storage/storageAccounts@2023-04-01' = {
+resource storageAccounts_resource 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageAccounts_name
   location: 'southcentralus'
   sku: {
@@ -451,7 +451,7 @@ resource storageAccounts_resource 'Microsoft.Storage/storageAccounts@2023-04-01'
   }
 }
 
-resource storageAccounts_PrivateLink 'Microsoft.Storage/storageAccounts/privateEndpointConnections@2023-04-01' = {
+resource storageAccounts_PrivateLink 'Microsoft.Storage/storageAccounts/privateEndpointConnections@2023-05-01' = {
   parent: storageAccounts_resource
   name: '${storageAccounts_name}.5c4f3d46-d440-472c-9bee-1a076d29fb76'
   properties: {
@@ -464,7 +464,7 @@ resource storageAccounts_PrivateLink 'Microsoft.Storage/storageAccounts/privateE
   }
 }
 
-resource privateEndpoints_blob_storage_resource 'Microsoft.Network/privateEndpoints@2023-11-01' = {
+resource privateEndpoints_blob_storage_resource 'Microsoft.Network/privateEndpoints@2024-05-01' = {
   name: privateEndpoints_spoke3_blob_storage_name
   location: 'southcentralus'
   properties: {
