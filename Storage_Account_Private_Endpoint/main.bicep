@@ -1,60 +1,62 @@
+/*
+Author: Dylan Hover
+Objective: To deploy a Storage Account with a Private endpoint and Private DNS Zone for POC testing.
+Initial Publication Date: 01/19/2025
+
+Most Recent Update Date: 01/19/2025
+Changes Made:
+
+Description:
+This Bicep file will deploy a Storage Account with a File Share. It will setup the storage account with Private Link, Private Endpoint, and Private DNS Zone for DNS resolution. It will also disable Public IP access so that the storage account is only accessible through the Private IP address of the storage account. This makes the storage account accessible through the virtual network.
+*/
+
 @description('The location into which the resources should be deployed.')
 param location string = resourceGroup().location
 
 @description('The name of the Azure storage account.')
 param storageAccountName string = 'hyperechostorage${(resourceGroup().id)}'
 
-@description('The name of the virtual network for virtual network integration.')
-param vnetName string = 'vnet-${uniqueString(resourceGroup().id)}'
+@description('The name of an existing virtual network.')
+param vnetName string
 
-@description('The name of the virtual network subnet used for private endpoint.')
-param privateEndpointSubnetName string = 'Subnet1'
+@description('The resource group of the existing virtual network.')
+param vnetResourceGroup string
 
-@description('The IP address space used for the virtual network.')
-param vnetAddressPrefix string = '10.0.0.0/16'
-
-@description('The IP address space used for the private endpoints.')
-param privateEndpointSubnetAddressPrefix string = '10.0.0.0/24'
+@description('The name of an existing virtual network subnet used for private endpoint.')
+param privateEndpointSubnetName string
 
 var privateStorageFileDnsZoneName = 'privatelink.file.${environment().suffixes.storage}'
 var privateEndpointStorageFileName = '${storageAccountName}-file-private-endpoint'
 var fileShareName = 'hyperecho-content-share'
 
-resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' existing = {
   name: vnetName
-  location: location
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        vnetAddressPrefix
-      ]
-    }
-    subnets: [
-      {
-        name: privateEndpointSubnetName
-        properties: {
-          privateEndpointNetworkPolicies: 'Disabled'
-          privateLinkServiceNetworkPolicies: 'Enabled'
-          addressPrefix: privateEndpointSubnetAddressPrefix
-        }
-      }
-    ]
-  }
+  scope: resourceGroup(vnetResourceGroup)
+}
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' existing = {
+  name: privateEndpointSubnetName
+  parent: vnet
 }
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   name: storageAccountName
   location: location
-  kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
   }
+  kind: 'StorageV2'
   properties: {
-    publicNetworkAccess: 'Disabled'
+    accessTier: 'Hot'
     allowBlobPublicAccess: false
     networkAcls: {
-      bypass: 'None'
+      bypass: 'AzureServices'
       defaultAction: 'Deny'
+      virtualNetworkRules: [
+        {
+          id: subnet.id
+        }
+      ]
     }
   }
 }
@@ -66,7 +68,7 @@ resource privateStorageFileDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01
 
 resource privateStorageFileDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   parent: privateStorageFileDnsZone
-  name: '${privateStorageFileDnsZoneName}-link'
+  name: '${vnet.name}-link'
   location: 'global'
   properties: {
     registrationEnabled: false
@@ -106,7 +108,7 @@ resource privateEndpointStorageFilePrivateDnsZoneGroup 'Microsoft.Network/privat
   properties: {
     privateDnsZoneConfigs: [
       {
-        name: 'config'
+        name: 'storage-file-dns-zone-config'
         properties: {
           privateDnsZoneId: privateStorageFileDnsZone.id
         }

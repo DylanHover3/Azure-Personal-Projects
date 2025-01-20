@@ -6,6 +6,8 @@ Initial Publication Date: 06/08/2024
 Most Recent Update Date: 06/08/2024
 Changes Made:
 
+01/19/2025 - Added Private DNS Zone for Hub and Spoke Networks
+
 Description:
 This Bicep file will deploy a Hub network with a Bastion host. It will deploy a specified number of spoke networks each with their own NSG associated to their subnet. It will also deploy a VM to the subnet of each Spoke network. Lastly it will peer the Hub network to the Spoke networks to allow for connectivity to each of the spoke networks from the Hub. 
 */
@@ -74,9 +76,8 @@ param vmSize string = 'Standard_B1ms'
 ])
 param securityType string = 'Standard'
 
+@description('The name of the private DNS zone for the Hub and Spoke Networks')
 param privateDnsZones_hyperechocloud_com_name string = 'hyperechocloud.com'
-param privateEndpoints_spoke3_blob_storage_name string = 'spoke3_blob_storage'
-param storageAccounts_name string = 'hyperechoawesomestor'
 
 var bastionSubnetName = 'AzureBastionSubnet'
 var hubSubnet2Name = 'Subnet-2'
@@ -402,3 +403,16 @@ resource privateDnsZones_hub_link 'Microsoft.Network/privateDnsZones/virtualNetw
     }
   }
 }
+
+resource privateDnsZones_spoke_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = [for i in range(0, spokeNetworkCount): {
+  parent: privateDnsZones_hyperechocloud_com
+  name: 'vnet${i + 2}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: true
+    virtualNetwork: {
+      id: spokeNetwork[i].id
+    }
+  }
+}
+]
