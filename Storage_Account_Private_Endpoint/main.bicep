@@ -7,14 +7,14 @@ Most Recent Update Date: 01/19/2025
 Changes Made:
 
 Description:
-This Bicep file will deploy a Storage Account with a File Share. It will setup the storage account with Private Link, Private Endpoint, and Private DNS Zone for DNS resolution. It will also disable Public IP access so that the storage account is only accessible through the Private IP address of the storage account. This makes the storage account accessible through the virtual network.
+This Bicep file will deploy a Storage Account with a File Share. It will setup the storage account with Private Link, Private Endpoint, and Private DNS Zone for DNS resolution. This deployment will link the Private DNS Zone for the Storagae Account File Share to the virtual network that the Private Endpoint is setup in. It will also disable Public IP access so that the storage account is only accessible through the Private IP address of the storage account. This makes the storage account accessible through the virtual network.
 */
 
 @description('The location into which the resources should be deployed.')
 param location string = resourceGroup().location
 
 @description('The name of the Azure storage account.')
-param storageAccountName string = 'hyperechostorage${(resourceGroup().id)}'
+param storageAccountName string = 'hyperechofilestorage'
 
 @description('The name of an existing virtual network.')
 param vnetName string
@@ -47,16 +47,11 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {
   }
   kind: 'StorageV2'
   properties: {
-    accessTier: 'Hot'
+    publicNetworkAccess: 'Disabled'
     allowBlobPublicAccess: false
     networkAcls: {
       bypass: 'AzureServices'
       defaultAction: 'Deny'
-      virtualNetworkRules: [
-        {
-          id: subnet.id
-        }
-      ]
     }
   }
 }
@@ -83,7 +78,7 @@ resource privateEndpointStorageFile 'Microsoft.Network/privateEndpoints@2024-05-
   location: location
   properties: {
     subnet: {
-      id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, privateEndpointSubnetName)
+      id: subnet.id
     }
     privateLinkServiceConnections: [
       {
