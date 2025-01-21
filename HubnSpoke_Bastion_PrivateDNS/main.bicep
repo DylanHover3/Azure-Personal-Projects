@@ -294,7 +294,7 @@ resource SpokenetworkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2023
   }
 ]
 
-resource networkInterface 'Microsoft.Network/networkInterfaces@2023-11-01' = [for i in range(0, spokeNetworkCount): {
+resource spokeNetworkInterface 'Microsoft.Network/networkInterfaces@2023-11-01' = [for i in range(0, spokeNetworkCount): {
    name: 'Spoke${i + 1}-VM-NIC'
    location: location
    properties: {
@@ -342,7 +342,7 @@ resource spokeWindowsVM 'Microsoft.Compute/virtualMachines@2024-03-01' = [for i 
     networkProfile: {
       networkInterfaces: [
         {
-          id: networkInterface[i].id
+          id: spokeNetworkInterface[i].id
         }
       ]
     }
